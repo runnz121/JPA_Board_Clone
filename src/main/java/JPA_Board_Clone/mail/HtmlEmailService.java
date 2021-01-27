@@ -23,9 +23,9 @@ public class HtmlEmailService implements EmailService {
 
     @Override
     public void sendEmail(EmailMessage emailMessage) {
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();   //javamail sender(dependency needed)사용하여 메일 보내기 위한 인스턴스 생성
         try {
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false,"UTF-8");
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false,"UTF-8"); //MimeMessageHelper를 통한 자바메일 환경설정 https://blog.outsider.ne.kr/1051
             mimeMessageHelper.setTo(emailMessage.getTo());  //수신자 설정
             mimeMessageHelper.setSubject(emailMessage.getSubject()); //메일 제목 설정
             mimeMessageHelper.setText(emailMessage.getMessage(), true); //메일 내용 설정

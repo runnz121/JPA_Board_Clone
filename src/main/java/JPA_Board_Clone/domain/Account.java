@@ -1,7 +1,6 @@
 package JPA_Board_Clone.domain;
 
 import lombok.*;
-import org.aspectj.apache.bcel.generic.Tag;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

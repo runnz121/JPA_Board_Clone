@@ -3,8 +3,12 @@ package JPA_Board_Clone.account;
 
 import JPA_Board_Clone.config.AppProperties;
 import JPA_Board_Clone.domain.Account;
+import JPA_Board_Clone.domain.Tag;
+import JPA_Board_Clone.domain.Zone;
 import JPA_Board_Clone.mail.EmailMessage;
 import JPA_Board_Clone.mail.EmailService;
+import JPA_Board_Clone.settings.form.Notification;
+import JPA_Board_Clone.settings.form.Profile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -22,6 +26,8 @@ import org.thymeleaf.context.Context;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -125,4 +131,71 @@ public class AccountService implements UserDetailsService {
         emailService.sendEmail(emailMessage);
 
     }
+
+    public void updateProfile(Account account, Profile profile) {
+        modelMapper.map(profile, account); //ModelMapper.map(엔티티클래스,도메인클래스리터럴(Domain.class)) https://coding-start.tistory.com/151
+//        account.setUrl(profile.getUrl());
+//        account.setOccupation(profile.getOccupation());
+//        account.setBio(profile.getBio());
+//        account.setLocation(profile.getLocation());
+//        account.setProfileImage(profile.getProfileImage());
+        accountRepository.save(account);
+    }
+
+    @Transactional
+    public void updatePassword(Account account, String newPassword) {
+        account.setPassword(passwordEncoder.encode(newPassword));
+        accountRepository.save(account);
+    }
+
+    public void updateNotification(Account account, Notification notification) {
+        modelMapper.map(notification, account);
+//        account.setStudyCreatedByWeb(notification.isStudyCreatedByWeb());
+//        account.setStudyCreatedByEmail(notification.isStudyCreatedByEmail());
+//        account.setStudyUpdateByWeb(notification.isStudyUpdateByWeb());
+//        account.setStudyUpdateByEmail(notification.isStudyUpdateByEmail());
+//        account.setStudyEnrollmentResultByEmail(notification.isStudyEnrollmentResultByEmail());
+//        account.setStudyEnrollmentResultByWeb(notification.isStudyEnrollmentResultByWeb());
+        accountRepository.save(account);
+    }
+
+
+    public void updateNickname(Account account, String nickname) {
+        account.setNickname(nickname);
+        accountRepository.save(account);
+        login(account);
+    }
+
+    public void addTag(Account account, Tag tag) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent(a -> a.getTags().add(tag));
+    }
+
+    public Set<Tag> getTags(Account account) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        return byId.orElseThrow().getTags();
+    }
+
+    public void removeTag(Account account, Tag tag) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.orElseThrow().getTags().remove(tag);
+    }
+
+    public Set<Zone> getZones(Account account) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        return byId.orElseThrow().getZones(); //orElseThrow() : 저장된 값이 존재하면 그 값을 반환하고 그렇지 않으면 인수로 전달된 예외를 발생시킴
+    }
+
+    public void addZone(Account account, Zone zone) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent( //비어있는 옵셔녈 객체를 받는 경우 해당 메소드는 수행하지 않는다
+                (findAccount) -> findAccount.getZones().add(zone));
+    }
+
+    public void removeZone(Account account, Zone zone) {
+        Optional<Account> byId = accountRepository.findById(account.getId());
+        byId.ifPresent((findAccount) -> findAccount.getZones().remove(zone));
+    }
 }
+
+
